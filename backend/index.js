@@ -1,10 +1,16 @@
 const express = require('express');
 require('dotenv').config();
 const mongoose = require('mongoose');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 const username = encodeURIComponent(process.env.MONGO_USER);
 const password = encodeURIComponent(process.env.MONGO_PASS);
+const {ObjectId} = require('mongodb')
 const uri = `mongodb+srv://${username}:${password}@weathercluster.u88zpdy.mongodb.net/weather?retryWrites=true&w=majority`;
 const app = express();
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // connection establishing with mongo db
 mongoose.connect(uri, {
@@ -33,6 +39,7 @@ app.get('/api/frequency', (req, res) => {
 });
 
 app.put('/api/frequency', (req, res) => {
+    //console.log(req)
   const { frequency } = req.body;
   process.env.FREQUENCY = frequency;
   res.send({ message: 'Frequency updated.' });
@@ -46,22 +53,23 @@ app.get('/api/users', async (req, res) => {
 
 app.delete('/api/users/:id', async (req, res) => {
   const { id } = req.params;
+ 
   const usersCollection = mongoose.connection.collection('users');
-  await usersCollection.deleteOne({ _id: ObjectId(id) });
+  await usersCollection.findOneAndDelete({_id: new ObjectId(id)})
   res.send({ message: 'User deleted.' });
 });
 
 app.put('/api/users/:id/block', async (req, res) => {
   const { id } = req.params;
   const usersCollection = mongoose.connection.collection('users');
-  await usersCollection.updateOne({ _id: ObjectId(id) }, { $set: { blocked: true } });
+  await usersCollection.findOneAndUpdate({ _id: new ObjectId(id) }, { $set: { blocked: true } });
   res.send({ message: 'User blocked.' });
 });
 
 app.put('/api/users/:id/unblock', async (req, res) => {
   const { id } = req.params;
   const usersCollection = mongoose.connection.collection('users');
-  await usersCollection.updateOne({ _id: ObjectId(id) }, { $unset: { blocked: true } });
+  await usersCollection.findOneAndUpdate({ _id: new ObjectId(id) }, { $unset: { blocked: true } });
   res.send({ message: 'User unblocked.' });
 });
 
