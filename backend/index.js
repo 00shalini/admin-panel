@@ -22,6 +22,28 @@ mongoose.connect(uri, {
     console.log('Error connecting to MongoDB:', err);
 });
 
+app.post('/api/login', async (req, res) => {
+
+    const { email, password } = req.body;
+
+        const usersCollection = mongoose.connection.collection('admins');
+    
+        const user = await usersCollection.findOne({ email: email });
+
+        if (!user) {
+          return res.status(200).send({ message: ' email or password does not exist' });
+        } 
+
+        if ( password === user.password && email === user.email) {
+            res.status(200).send({ message: true });
+        } else {
+            return res.send({ message: 'Invalid email or password' });
+        }
+    
+    
+     
+  });
+
 app.get('/api/keys', (req, res) => {
   const apiKey = process.env.OPEN_WEATHER_API_KEY;
   res.send({ apiKey });

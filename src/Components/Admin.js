@@ -4,10 +4,19 @@ import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import usermgnt from "../assets/images/User-Mngmt.png";
 import "../App.css";
 
-function AdminPanel() {
+function AdminPanel(props) {
   const [apiKey, setApiKey] = useState("");
   const [frequency, setFrequency] = useState("");
   const [users, setUsers] = useState([]);
+  
+
+  const handleLogout = () => {
+    console.log(props)
+     if (props.isAuth){
+        props.callback(false)
+     }
+     
+  }
 
   useEffect(() => {
     axios.get("http://localhost:5000/api/keys").then((response) => {
@@ -109,6 +118,19 @@ function AdminPanel() {
           >
             User Management
           </p>
+          <button
+            type="submit"
+            class="btn"
+            style={{
+              border: "2px solid white",
+              color: "white",
+              backgroundColor: "rgb(54, 6, 54)",
+              width: "120px",
+            }}
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </div>
       </nav>
       <div
